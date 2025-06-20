@@ -3,10 +3,12 @@ from weaviate import EmbeddedOptions
 import os
 import json
 
+API_KEY = os.getenv("OPENAI_API_KEY")
+
 client = weaviate.WeaviateClient(
     embedded_options=EmbeddedOptions(),
     additional_headers={
-        "X-OpenAI-Api-Key": "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"
+        "X-OpenAI-Api-Key": API_KEY
     }
 )
 
