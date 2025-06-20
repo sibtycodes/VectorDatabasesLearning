@@ -1,4 +1,9 @@
+import os
+
 import weaviate
+import os
+
+
 
 
 client = weaviate.connect_to_local()
