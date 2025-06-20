@@ -7,6 +7,7 @@ from weaviate.util import image_encoder_b64
 import os, json, base64, io
 from PIL import Image
 from IPython.display import display
+from pathlib import Path
 
 client = weaviate.connect_to_local()
 
@@ -70,7 +71,7 @@ try:
         test_image_b64 = image_encoder_b64(image_file)
 
     resultImageQuery = imagesCollection.query.near_image(
-        image=test_image_b64,
+        near_image=Path(test_image_path),
         limit=3,
         return_properties=["name", "imageBlob"],
         return_metadata=["distance"]
