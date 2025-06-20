@@ -7,3 +7,6 @@ if client.is_ready():
     print("✅ Connected to Weaviate!")
 else:
     print("❌ Failed to connect.")
+
+#close connection
+client.close()
