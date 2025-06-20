@@ -56,21 +56,27 @@ try:
     #
     # print(f"✅ Added {added} valid items to the 'Jeopardy' collection")
 
-    #--------------ABOVE CODE IS FOR SETUP ONLY----------------WE HAVE A COLLECTION NOW AND VECTORIZED DATA----------------
+    # --------------ABOVE CODE IS FOR SETUP ONLY----------------WE HAVE A COLLECTION NOW AND VECTORIZED DATA----------------
 
-    response = client.collections.get("Jeopardy").aggregate.over_all(total_count=True)
-    print("🔢 Total objects in 'Jeopardy':", response.total_count)
+    # response = client.collections.get("Jeopardy").aggregate.over_all(total_count=True)
+    # print("🔢 Total objects in 'Jeopardy':", response.total_count)
 
-    # response = client.collections.get("Jeopardy").query.near_text(
-    #     query="spicy food recipes",
-    #     limit=4,
-    #     return_properties=["question", "answer"],
-    #     include_vector=False,
-    #     include_additional=["distance"]
-    # )
+    response = client.collections.get("Jeopardy").query.near_text(
+        query="spicy food recipes",
+        limit=4,
+        return_properties=["question", "answer"],
+        return_metadata=["distance"]
+    )
 
-    # print(json.dumps(response, indent=2))
+    results = []
+    for obj in response.objects:
+        results.append({
+            "question": obj.properties.get("question"),
+            "answer": obj.properties.get("answer"),
+            "distance": obj.metadata.distance
+        })
 
+    print(json.dumps(results, indent=2))
 
 
 finally:
