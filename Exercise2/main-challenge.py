@@ -1,14 +1,9 @@
 import weaviate
-# import os
-import json
-# from dotenv import load_dotenv
+
 import weaviate.classes.config as wc
 
-# # Load environment variables from .env (not required here but left in for future use)
-# load_dotenv()
-# API_KEY = os.getenv("OPENAI_API_KEY")
-#
-# # Connect to local Weaviate (no API key needed for local + transformers)
+import json
+
 client = weaviate.connect_to_local()
 
 try:
@@ -25,15 +20,19 @@ try:
     if client.collections.exists("Jeopardy"):
         client.collections.delete("Jeopardy")
 
-    # Create new collection schema
     client.collections.create(
         name="Jeopardy",
         properties=[
             wc.Property(name="question", data_type=wc.DataType.TEXT),
             wc.Property(name="answer", data_type=wc.DataType.TEXT),
-            wc.Property(name="round", data_type=wc.DataType.TEXT),
+            wc.Property(name="round", data_type=wc.DataType.TEXT),  # ✅ stored but not vectorized
         ],
-        vectorizer_config=wc.Configure.Vectorizer.text2vec_transformers()
+        vectorizer_config=wc.Configure.Vectorizer.multi2vec_clip(
+            text_fields=[
+                wc.Multi2VecField(name="question", weight=1.0),
+                wc.Multi2VecField(name="answer", weight=0.5)
+            ]
+        )
     )
 
     print("✅ Collection 'Jeopardy' created successfully!")
@@ -56,6 +55,22 @@ try:
             added += 1
 
     print(f"✅ Added {added} valid items to the 'Jeopardy' collection")
+
+    #
+    # response = client.collections.get("Jeopardy").aggregate.meta_count()
+    # print(json.dumps(response, indent=2))
+
+    # response = client.collections.get("Jeopardy").query.near_text(
+    #     query="spicy food recipes",
+    #     limit=4,
+    #     return_properties=["question", "answer"],
+    #     include_vector=False,
+    #     include_additional=["distance"]
+    # )
+    #
+    # print(json.dumps(response, indent=2))
+
+
 
 finally:
     client.close()
