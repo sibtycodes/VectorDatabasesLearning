@@ -44,3 +44,6 @@ if data is not None:
 
 else:
     print("\nCould not proceed with data parsing and printing as data download failed.")
+
+
+ 
