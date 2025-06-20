@@ -1,7 +1,7 @@
 import weaviate
 
 import weaviate.classes.config as wc
-
+import weaviate.classes.query as wq
 import json
 
 client = weaviate.connect_to_local()
@@ -65,7 +65,8 @@ try:
         query="spicy food recipes",
         limit=4,
         return_properties=["question", "answer"],
-        return_metadata=["distance"]
+        return_metadata=["distance"],
+        filters=wq.Filter.by_property("round").equal("Double Jeopardy")
     )
 
     results = []
