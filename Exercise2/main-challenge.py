@@ -1,30 +1,31 @@
 import weaviate
-import os
+# import os
 import json
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import weaviate.classes.config as wc
 
-load_dotenv()
-API_KEY = os.getenv("OPENAI_API_KEY")
-
-client = weaviate.connect_to_local(headers={
-    "X-OpenAI-Api-Key": API_KEY,
-})
+# # Load environment variables from .env (not required here but left in for future use)
+# load_dotenv()
+# API_KEY = os.getenv("OPENAI_API_KEY")
+#
+# # Connect to local Weaviate (no API key needed for local + transformers)
+client = weaviate.connect_to_local()
 
 try:
-    print("Connected to Weaviate")
+    print("✅ Connected to Weaviate")
 
-    # Load jeopardy data
+    # Load the JSON dataset
     with open("jeopardy_1k.json", "r", encoding="utf-8") as f:
         jeopardy_data = json.load(f)
 
     print(f"✅ Loaded {len(jeopardy_data)} items from 'jeopardy_1k.json'")
+    print(f"Sample keys: {list(jeopardy_data[0].keys())}")
 
-    # Delete previous collection if exists
+    # Remove old collection if it exists
     if client.collections.exists("Jeopardy"):
         client.collections.delete("Jeopardy")
 
-    # Create the Jeopardy collection with schema
+    # Create new collection schema
     client.collections.create(
         name="Jeopardy",
         properties=[
@@ -32,11 +33,30 @@ try:
             wc.Property(name="answer", data_type=wc.DataType.TEXT),
             wc.Property(name="round", data_type=wc.DataType.TEXT),
         ],
-        vectorizer_config=wc.Configure.Vectorizer.text2vec_openai(),  # uses OpenAI to vectorize text
-        # generative_config=wc.Configure.Generative.openai(),  # optional, only if you're using Gen AI
+        vectorizer_config=wc.Configure.Vectorizer.text2vec_transformers()
     )
 
     print("✅ Collection 'Jeopardy' created successfully!")
 
+    # Insert objects
+    collection = client.collections.get("Jeopardy")
+    added = 0
+
+    for item in jeopardy_data:
+        question = item.get("Question")
+        answer = item.get("Answer")
+        round_ = item.get("Round")
+
+        if question and answer and round_:
+            collection.data.insert({
+                "question": question.strip(),
+                "answer": answer.strip(),
+                "round": round_.strip()
+            })
+            added += 1
+
+    print(f"✅ Added {added} valid items to the 'Jeopardy' collection")
+
 finally:
     client.close()
+    print("🔒 Weaviate connection closed.")
