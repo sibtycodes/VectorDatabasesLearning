@@ -19,8 +19,10 @@ services:
     depends_on:
       - clip     # ✅ ensure clip starts first
     environment:
-      ENABLE_MODULES: 'multi2vec-clip'
+      ENABLE_MODULES: 'multi2vec-clip,generative-google'
       CLIP_INFERENCE_API: 'http://clip:8080'
+      GOOGLE_GENERATIVEAI_APIKEY: 'AIzaSyBs_efaobrurvqOFoW1yRLnky562OMv_0M'
+      GOOGLE_GENERATIVEAI_MODEL: 'gemini-2.0-flash'
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
       PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
